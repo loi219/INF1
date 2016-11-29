@@ -31,8 +31,10 @@
 # Others
 *.txt
 .DS_Store
-.idea/
+.idea
 
-.classpath
 .project
-proguard/
+.metadata/
+.cproject
+.metadata/
+.settings/
