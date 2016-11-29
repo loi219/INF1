@@ -1,14 +1,14 @@
-# README
-## Squelette
-* Bonjour et présentation programme
-* Saisie de l'année par l'utilisateur
-* Calculs
-	* L'année est-elle bissextile ? (estBissextile())
-	* Si oui, février a 30 jours.
-* Affichage de chaque mois
-* Demande si l'utilisateur veut relancer le programme
-* Au revoir.
-	
-## Remarque
-* Pour simplification, le premier jour de l'année est un lundi
-* Possibilité de trouver le début exacte de chaque année sur internet
+# INF1_labo_05b                                                                                                                                                       
+##Corrections                                                                                                                                                         
+- [x] Boucle saisie                                                                                                                                                   
+- [x] Externaliser la saisie dans une fonction
+- [x] Modifier reset() pour sortir les return du if (branch: repairReset) - Sven
+- [x] Ajouter un espace après la demande pour reset (branch: repairReset) - Sven
+- [x] Affichage mois (branch: fixAffichageMois)                           - Sven
+- [x] Jours dans les mois (branch: fixJoursMois)
+- [x] Fonction estBissextile
+
+##Upgrades                                                                                                                       
+- [x] Fonction JoursSemaine (branch: updateJoursSemaine)                  - Julien
+- [x] Boucler sur tous les mois dans l'intervalle donnée (vérification + double boucle for (année et mois)) (branch: updateIntervalle) 
+- [x] Affichage numéros de semaine (branch: updateAfficherNbreSemaine)
