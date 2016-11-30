@@ -1,5 +1,5 @@
 ##TODO
-- [] Ajouter fonctions déjà faites - Y
+- [x] Ajouter fonctions déjà faites - Y
 ###Remarques
    - Le programme doit afficher le statut de chaque chercheur
       Le nombre de pas du chercheur
