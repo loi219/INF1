@@ -112,7 +112,7 @@ int main() {
             MAP_X_MAX = 100,
             MAP_Y_MAX = 200,
             LAKE_R_MIN = 1,
-            LAKE_R_MAX = 50;
+            LAKE_R_MAX = 200;
 
 
     do {
@@ -137,14 +137,16 @@ int main() {
                   posLake2X,  posLake2Y,  radLake2,
                   posLake3X,  posLake3Y,  radLake3,
                   LAKE_R_MIN, LAKE_R_MAX, MAP_X_MIN,  MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
-            int time;
-            for (time =0; time<MAP_X_MAX*MAP_Y_MAX;++time){
+            cout << "IT HAS SPAWNED " << explo << endl;
+            int step;
+            for (step=0; step<MAP_X_MAX*MAP_Y_MAX;++step){
 
                 move(posExploX,posExploY);
                 stateX = checkPos(posExploX,  posTreasureX,  posLake1X,  radLake1,  posLake2X,  radLake2,  posLake3X,  radLake3, MAP_X_MIN, MAP_X_MAX);
                 stateY = checkPos(posExploY,  posTreasureY,  posLake1Y,  radLake1,  posLake2Y,  radLake2,  posLake3Y,  radLake3, MAP_Y_MIN, MAP_Y_MAX);
                 if(stateX == 1 && stateY == 1){
                     finalState = 1;
+
                     break;
                 }else if(stateX == 2 || stateY == 2){
                     finalState = 2;
@@ -153,16 +155,17 @@ int main() {
                     finalState = 3;
                     break;
                 }else{
-                    finalState = 0;
+                    finalState = 4;
                 }
             }
+            cout << "finalState : " << finalState << endl;
             foundTreasure += finalState == 1 ? 1 : 0;
-            avgSteps += finalState == 1 ? time : 0;
+            avgSteps += finalState == 1 ? step : 0;
 
         }
         cout << "Nombre de chercheurs fructueux : " << foundTreasure << endl
              << "Probabilité de succès : " << foundTreasure/nbExplo << endl
-             << "Nombre de pas moyens au succès : " << avgSteps/foundTreasure << endl;
+             << "Nombre de pas moyens au succès : " << (!foundTreasure ? 0 : avgSteps/foundTreasure) << endl;
 
 
 
@@ -170,7 +173,6 @@ int main() {
     }while(doAgain());
     return EXIT_SUCCESS;
 }
-
 
 int area(int mapX, int mapY){
     static int area;
@@ -211,20 +213,23 @@ int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, 
         }while((posLake3X == posLake1X && posLake3Y == posLake1Y) || (posLake3X == posLake2X && posLake3Y == posLake2Y));
 
 
-        radLake1  = genRandomVal(LAKE_R_MIN, LAKE_R_MAX);
+        radLake1  = genRandomVal(LAKE_R_MIN, min(norme(posLake1X-posLake2X,posLake1Y-posLake2Y),norme(posLake1X-posLake3X,posLake1Y-posLake3Y)));
         do{
-            radLake2  = genRandomVal(LAKE_R_MIN, LAKE_R_MAX);
-        }while(radLake2+radLake1<=norme(posLake2X-posLake1X, posLake2Y-posLake1Y));
+            radLake2 = genRandomVal(LAKE_R_MIN, min(norme(posLake2X-posLake3X,posLake2Y-posLake3Y),norme(posLake2X-posLake1X,posLake2Y-posLake1Y)));
+            cout << radLake2+radLake1 << " : " << norme(posLake2X-posLake1X, posLake2Y-posLake1Y) << endl;
+        }while(radLake2+radLake1>=norme(posLake2X-posLake1X, posLake2Y-posLake1Y));
         do {
             radLake3 = genRandomVal(LAKE_R_MIN, LAKE_R_MAX);
-        }while(radLake3+radLake1<=norme(posLake3X-posLake1X, posLake3Y-posLake1Y) || radLake3+radLake2>=norme(posLake3X-posLake2X, posLake3Y-posLake2Y));
+            cout << radLake3+radLake1 << " : " << norme(posLake3X-posLake1X, posLake3Y-posLake1Y) << endl;
+            cout << radLake3+radLake2 << " - " << norme(posLake3X-posLake2X, posLake3Y-posLake2Y) << endl;
+        }while(radLake3+radLake1>=norme(posLake3X-posLake1X, posLake3Y-posLake1Y) || radLake3+radLake2>=norme(posLake3X-posLake2X, posLake3Y-posLake2Y));
 
 
     /*TREASURE*/
         do{
             posTreasureX = genRandomVal(minX, maxX);
             posTreasureY = genRandomVal(minY, maxY);
-        }while(norme(posTreasureX, posLake1X) <= radLake1 || posTreasureY == posLake1Y);
+        }while(norme(posTreasureX-posLake1X, posTreasureY-posLake1Y ) <= radLake1 || norme(posTreasureX-posLake2X, posTreasureY-posLake2Y ) <= radLake2 || norme(posTreasureX-posLake3X, posTreasureY-posLake3Y ) <= radLake3);
     }
     first = !first;
     /*EXPLO*/
@@ -232,7 +237,7 @@ int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, 
         posExploX = genRandomVal(minX, maxX);
         posExploY = genRandomVal(minY, maxY);
 
-    }while((posExploX == posLake1X || posExploY == posLake1Y) || posExploX == posLake2X || posExploY == posLake2Y || posExploX == posLake3X || posExploY == posLake3Y);
+    }while((norme(posExploX-posLake1X, posExploY-posLake1Y) <= radLake1) || (norme(posExploX-posLake2X, posExploY-posLake2Y) <= radLake2) || (norme(posExploX-posLake3X, posExploY-posLake3Y) <= radLake3));
 
     return EXIT_SUCCESS;
 }
