@@ -70,7 +70,7 @@ int input(const string& message, int limitMin, int limitMax, const int WIDTH_INT
 
 int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, int& posLake1X, int& posLake1Y, int& radLake1, int& posLake2X, int& posLake2Y, int& radLake2, int& posLake3X, int& posLake3Y, int& radLake3, const int LAKE_R_MIN, const int LAKE_R_MAX, const int minX, const int minY, const int maxX, const int maxY);
 int move(int& posExploX, int& posExploY);
-int checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max);
+int checkPos(int posExplo, int posTreasure, int posLake1, int radLake1, int posLake2, int radLake2, int posLake3, int radLake3, const int min, const int max);
 
 
 /*
@@ -111,8 +111,8 @@ int main() {
             MAP_Y_MIN = 1,
             MAP_X_MAX = 100,
             MAP_Y_MAX = 200,
-            LAKE_R_MIN = 1,
-            LAKE_R_MAX = 200;
+            LAKE_R_MIN = 0,
+            LAKE_R_MAX = min(MAP_X_MAX,MAP_Y_MAX)/2;
 
 
     do {
@@ -164,7 +164,7 @@ int main() {
 
         }
         cout << "Nombre de chercheurs fructueux : " << foundTreasure << endl
-             << "Probabilité de succès : " << foundTreasure/nbExplo << endl
+             << "Probabilité de succès : " << 100.*foundTreasure/nbExplo << "%" << endl
              << "Nombre de pas moyens au succès : " << (!foundTreasure ? 0 : avgSteps/foundTreasure) << endl;
 
 
@@ -203,27 +203,33 @@ int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, 
     if(first){
         posLake1X = genRandomVal(minX, maxX);
         posLake1Y = genRandomVal(minY, maxY);
+        radLake1  = genRandomVal(LAKE_R_MIN, LAKE_R_MAX);
+
         do{
         posLake2X = genRandomVal(minX, maxX);
         posLake2Y = genRandomVal(minY, maxY);
-        }while(posLake2X == posLake1X && posLake2Y == posLake1Y);
+        radLake2 = genRandomVal(LAKE_R_MIN, min(LAKE_R_MAX, norme(posLake2X-posLake1X,posLake2Y-posLake1Y))-1);
+        }while(norme(posLake2X-posLake1X,posLake2Y-posLake1Y)<=radLake1);
+
         do{
         posLake3X = genRandomVal(minX, maxX);
         posLake3Y = genRandomVal(minY, maxY);
-        }while((posLake3X == posLake1X && posLake3Y == posLake1Y) || (posLake3X == posLake2X && posLake3Y == posLake2Y));
+        radLake3 = genRandomVal(LAKE_R_MIN, min(norme(posLake3X-posLake2X,posLake3Y-posLake2Y),norme(posLake3X-posLake1X,posLake3Y-posLake1Y))-1);
 
+        }while(norme(posLake3X-posLake1X,posLake3Y-posLake1Y)<=radLake1 ||
+               norme(posLake3X-posLake2X,posLake3Y-posLake2Y)<=radLake2 ||
+                radLake3+radLake1>=norme(posLake3X-posLake1X, posLake3Y-posLake1Y) ||
+                radLake3+radLake2>=norme(posLake3X-posLake2X, posLake3Y-posLake2Y));
 
-        radLake1  = genRandomVal(LAKE_R_MIN, min(norme(posLake1X-posLake2X,posLake1Y-posLake2Y),norme(posLake1X-posLake3X,posLake1Y-posLake3Y)));
+/*
         do{
-            radLake2 = genRandomVal(LAKE_R_MIN, min(norme(posLake2X-posLake3X,posLake2Y-posLake3Y),norme(posLake2X-posLake1X,posLake2Y-posLake1Y)));
             cout << radLake2+radLake1 << " : " << norme(posLake2X-posLake1X, posLake2Y-posLake1Y) << endl;
         }while(radLake2+radLake1>=norme(posLake2X-posLake1X, posLake2Y-posLake1Y));
         do {
-            radLake3 = genRandomVal(LAKE_R_MIN, LAKE_R_MAX);
             cout << radLake3+radLake1 << " : " << norme(posLake3X-posLake1X, posLake3Y-posLake1Y) << endl;
             cout << radLake3+radLake2 << " - " << norme(posLake3X-posLake2X, posLake3Y-posLake2Y) << endl;
-        }while(radLake3+radLake1>=norme(posLake3X-posLake1X, posLake3Y-posLake1Y) || radLake3+radLake2>=norme(posLake3X-posLake2X, posLake3Y-posLake2Y));
-
+        }while();
+*/
 
     /*TREASURE*/
         do{
@@ -252,7 +258,7 @@ int move(int& posExploX, int& posExploY){
     posExploY += movement%2 ? 0 : movement-2;
     return EXIT_SUCCESS;
 }
-int checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max){
+int checkPos(int posExplo, int posTreasure, int posLake1, int radLake1, int posLake2, int radLake2, int posLake3, int radLake3, const int min, const int max){
     /*riche perdu noyé epuisé nothing*/
     /*  1     2     3    -      0 */
     return posExplo < min ? 2 :
