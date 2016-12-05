@@ -27,6 +27,7 @@ Compilateur : gcc version 6.2.1 20160916 (Red Hat 6.2.1-2) (GCC)
 #define WIDTH_INT_BASE 4u
 #define WIDTH_TEXT_BASE 30u
 
+enum class State {RICH,LOST,DROWND,SPENT,WALK};
 
 using namespace std;
 
@@ -70,9 +71,9 @@ int input(const string& message, int limitMin, int limitMax, const int WIDTH_INT
 
 int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, int& posLake1X, int& posLake1Y, int& radLake1, int& posLake2X, int& posLake2Y, int& radLake2, int& posLake3X, int& posLake3Y, int& radLake3, const int LAKE_R_MIN, const int LAKE_R_MAX, const int minX, const int minY, const int maxX, const int maxY);
 int move(int& posExploX, int& posExploY);
-int checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max);
+State checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max);
 
-
+string printPos(State intState);
 /*
  * Goal: Show a prompt for the user to definitely quit the program.
  *
@@ -123,11 +124,12 @@ int main() {
     /*    mapX    = input("Entrez la largeur de la carte :",MAP_X_MIN, MAP_X_MAX );
         mapY    = input("Entrez la hauteur de la carte :",MAP_Y_MIN, MAP_Y_MAX ); */
 
-        int stateX,
-            stateY,
-            finalState    = 0,
-            foundTreasure = 0,
+        int foundTreasure = 0,
             avgSteps      = 0;
+
+        State finalState=State::WALK,
+        		 stateX,
+        		 stateY;
 
         for(int explo=0;explo<nbExplo;explo++){
 
@@ -144,23 +146,25 @@ int main() {
                 move(posExploX,posExploY);
                 stateX = checkPos(posExploX,  posTreasureX,  posLake1X,  radLake1,  posLake2X,  radLake2,  posLake3X,  radLake3, MAP_X_MIN, MAP_X_MAX);
                 stateY = checkPos(posExploY,  posTreasureY,  posLake1Y,  radLake1,  posLake2Y,  radLake2,  posLake3Y,  radLake3, MAP_Y_MIN, MAP_Y_MAX);
-                if(stateX == 1 && stateY == 1){
-                    finalState = 1;
+                if(stateX == State::RICH && stateY == State::RICH){
+                    finalState = State::RICH;
 
                     break;
-                }else if(stateX == 2 || stateY == 2){
-                    finalState = 2;
+                }else if(stateX == State::LOST || stateY == State::LOST){
+                    finalState = State::LOST;
+
                     break;
-                }else if(stateX == 3 && stateY == 3){
-                    finalState = 3;
+                }else if(stateX == State::DROWND && stateY == State::DROWND){
+                    finalState = State::DROWND;
                     break;
                 }else{
-                    finalState = 4;
+                    finalState = State::WALK;
                 }
             }
-            cout << "finalState : " << finalState << endl;
-            foundTreasure += finalState == 1 ? 1 : 0;
-            avgSteps += finalState == 1 ? step : 0;
+
+            cout << "finalState : "<<printPos(finalState) << endl;
+            foundTreasure += finalState == State::RICH ? 1 : 0;
+            avgSteps += finalState == State::RICH ? step : 0;
 
         }
         cout << "Nombre de chercheurs fructueux : " << foundTreasure << endl
@@ -252,19 +256,47 @@ int move(int& posExploX, int& posExploY){
     posExploY += movement%2 ? 0 : movement-2;
     return EXIT_SUCCESS;
 }
-int checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max){
+State checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max){
     /*riche perdu noyé epuisé nothing*/
     /*  1     2     3    -      0 */
-    return posExplo < min ? 2 :
-           posExplo > max ? 2 :
-           posExplo == posTreasure ? 1 :
-           posExplo <= posLake1+radLake1 ? 3 :
-           posExplo <= posLake2+radLake2 ? 3 :
-           posExplo <= posLake3+radLake3 ? 3 :
-           0;
+
+
+    return posExplo < min ? State::LOST :
+           posExplo > max ? State::LOST :
+           posExplo == posTreasure ? State::RICH :
+           posExplo <= posLake1+radLake1 ? State::DROWND :
+           posExplo <= posLake2+radLake2 ? State::DROWND :
+           posExplo <= posLake3+radLake3 ? State::DROWND :
+           State::WALK;
 }
 
+string printPos(State state){
+	string actualState;
 
+switch(state){
+case State::RICH :
+actualState="Riche";
+	break;
+case State::LOST :
+	actualState="Perdu";
+	break;
+case State::DROWND:
+	actualState="Noye";
+	break;
+case State::SPENT:
+	actualState="Epuise";
+	break;
+case State::WALK:
+	actualState="Marche";
+	break;
+default:
+	actualState="inconnu";
+	break;
+
+}
+
+return actualState;
+}
 /***************************SAISIE****************************/
 bool doAgain(){
 
