@@ -17,78 +17,22 @@ Compilateur : gcc version 6.2.1 20160916 (Red Hat 6.2.1-2) (GCC)
 */
 
 
-#include <iostream>
-#include <iomanip>
-#include <climits>
-#include <string>
+
 #include <cmath>
-
-#define CLEAR_BUFFER cin.ignore(INT_MAX, '\n')
-#define WIDTH_INT_BASE 4u
-#define WIDTH_TEXT_BASE 30u
-
-enum class State {RICH,LOST,DROWND,SPENT,WALK};
-
-using namespace std;
+#include "IO.h"
+#include "utils.h"
 
 
-/*
- * Goal: asks the user if he wants to restart or exit the program
- *       checks if the inputs are valid
- *
- * parameters:
- *      none
- *
- * @return:
- *      isValid: boolean containing the answer of the user to the question
- *               "do you want to start again?"
- */
-bool doAgain();
 
-/*
- * Goal: asks the user which values he wants to use for the program
- *       checks if the inputs are valid
- *       if the inputs are not valid, asks again the user to enter the values
- *
- * parameters:
- *      @param message   : string that contains the message asking the user about
- *                         the values needed in the program
- *      @param limitMin  : int that contains the lowest integer that the user
- *                         is allowed to enter
- *      @param limitMax  : int that contains the highest integer that the user
- *                         is allowed to enter
- *      @param error     : string that contains a message noticing the user that
- *                         he entered an invalid value
- *      @param WIDTH_INT : const int that contains the width of the left margin
- *      @param WIDTH_TEXT: const int that contains a width that will be used
- *                         to align the text that is displayed
- *
- *
- * @return:
- *      userInput : int contianing the value that the user entered
- */
-int input(const string& message, int limitMin, int limitMax, const int WIDTH_INT=WIDTH_INT_BASE, const int WIDTH_TEXT=WIDTH_TEXT_BASE, const string error="Mauvaise saisie. Veuillez reessayez");
+
+
 
 int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, int& posLake1X, int& posLake1Y, int& radLake1, int& posLake2X, int& posLake2Y, int& radLake2, int& posLake3X, int& posLake3Y, int& radLake3, const int LAKE_R_MIN, const int LAKE_R_MAX, const int minX, const int minY, const int maxX, const int maxY);
 int move(int& posExploX, int& posExploY);
 State checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, int& posLake2, int& radLake2, int& posLake3, int& radLake3, const int& min, const int& max);
-
-void printState(State intState, int explo, int step);
 int defineState(State stateX, State stateY, State& finalState);
 
 
-
-
-/*
- * Goal: Show a prompt for the user to definitely quit the program.
- *
- * parameters:
- *      @param message : string containing the exit message
- *
- * @return:
- *      nothing
- */
-void toQuit(string message);
 
 
 
@@ -97,8 +41,8 @@ int main() {
 
 
     int     nbExplo,
-            posExploX = 0,
-            posExploY = 0,
+            posExploX,
+            posExploY,
             posTreasureX,
             posTreasureY,
             posLake1X,
@@ -163,22 +107,13 @@ int main() {
             foundTreasure += finalState == State::RICH ? 1 : 0;
             avgSteps += finalState == State::RICH ? step : 0;
 
-
         }
-        
-        cout << "Nombre de chercheurs fructueux : " << foundTreasure << endl
-             << "Probabilité de succès : " << 100.*foundTreasure/nbExplo << "%" << endl
-             << "Nombre de pas moyens au succès : " << (!foundTreasure ? 0 : avgSteps/foundTreasure) << endl;
-        cout << "lac 1 " << posLake1X << "-" << posLake1Y <<" : " << radLake1 << endl;
-        cout << "lac 2 " << posLake2X << "-" << posLake2Y <<" : " << radLake2 << endl;
-        cout << "lac 3 " << posLake3X << "-" << posLake3Y <<" : " << radLake3 << endl;
-        cout << "Tresor" << posTreasureX << "." << posTreasureY << endl;
-
-
-
-
+        printStats(foundTreasure, nbExplo, avgSteps);
+        cout << posTreasureX << " : " << posTreasureY << endl;
 
     }while(doAgain());
+
+    toQuit("Presser ENTER pour quitter..");
     return EXIT_SUCCESS;
 }
 
@@ -199,9 +134,7 @@ int genRandomVal(const int minVal, const int maxVal){
     return rand()%((range*2 +1)-range);
 
 }
-int genRadius(int& r, const int minR, const int maxR){
-    /*TMP*/
-}
+
 int norme(int x, int y){
     return (int)sqrt(x*x+y*y);
 }
@@ -255,10 +188,7 @@ int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY, 
 
     return EXIT_SUCCESS;
 }
-int spawnExplo(int& posExploX, int& posExploY, const int minX, const int maxX, const int minY, const int maxY){
 
-
-}
 int move(int& posExploX, int& posExploY){
 
     int movement = genRandomVal(1,4);
@@ -277,95 +207,18 @@ State checkPos(int& posExplo, int& posTreasure, int& posLake1, int& radLake1, in
            (norme(posExplo,posLake3) <= radLake3) ? State::DROWND : State::WALK;
 
 }
-int defineState(State stateX, State stateY, State& finalState){
-    if(stateX == State::LOST || stateY == State::LOST){
+int defineState(State stateX, State stateY, State& finalState) {
+    if (stateX == State::LOST || stateY == State::LOST) {
         finalState = State::LOST;
         return 1;
-    }else if(stateX == State::RICH && stateY == State::RICH){
+    } else if (stateX == State::RICH && stateY == State::RICH) {
         finalState = State::RICH;
         return 1;
-    }else if(stateX == State::DROWND && stateY == State::DROWND){
+    } else if (stateX == State::DROWND && stateY == State::DROWND) {
         finalState = State::DROWND;
         return 1;
-    }else{
+    } else {
         finalState = State::WALK;
         return 0;
     }
-}
-void printState(State state, int explo, int step) {
-	string actualState;
-    static bool first;
-	switch (state) {
-	case State::RICH:
-		actualState = "Riche!";
-		break;
-	case State::LOST:
-		actualState = "Perdu";
-		break;
-	case State::DROWND:
-		actualState = "Noye";
-		break;
-	case State::SPENT:
-		actualState = "Epuise";
-		break;
-	case State::WALK:
-		actualState = "Marche";
-		break;
-	default:
-		actualState = "en chemin";
-		break;
-
-	}
-    if(!first)
-        cout << "Explorateur" << " | " << setw(WIDTH_INT_BASE) << "Etat"<< " | " << setw(WIDTH_INT_BASE) << " #Pas" << endl;
-    first = true;
-    cout << "Explorateur " << "  "<< setw(WIDTH_INT_BASE)   << actualState << "  "<< setw(WIDTH_INT_BASE)  << step << endl;
-
-}
-
-
-/***************************SAISIE****************************/
-bool doAgain(){
-
-    char const YES = 'Y';
-    char const NO = 'N';
-    char answer;
-    bool isValid;
-
-
-    do{
-        cout << "Voulez-vous recommencer ? ["<<YES<<"/"<<NO<<"]";
-        isValid = bool(cin >> answer);
-        if(isValid)
-            cin.clear();
-        CLEAR_BUFFER;
-        // works even if the user forget the capital letter
-    }while(!(isValid || toupper(answer) == YES || toupper(answer) == NO));
-
-    return(toupper(answer)==YES);
-}
-
-
-int input(const string& message, int limitMin, int limitMax, const int WIDTH_INT, const int WIDTH_TEXT, const string error){
-    int userInput;
-    bool isValid;
-    do{
-        //shows message that includes the boundaries that the user must respect
-        cout  << message << setw(WIDTH_TEXT-message.length()) << ": [ " << setw(WIDTH_INT) << limitMin << " et " << setw(WIDTH_INT) << limitMax <<"] :" ;
-        isValid = bool(cin >> userInput);
-
-        if(!isValid || userInput < limitMin || userInput > limitMax ){
-            cout << error << endl;
-            cin.clear();
-        }
-        CLEAR_BUFFER;
-
-    }while(!isValid || userInput < limitMin || userInput > limitMax);
-
-    return userInput;
-}
-
-void toQuit(string message){
-    cout << message;
-    cin.get();
 }
