@@ -1,6 +1,13 @@
-//
-// Created by nyahon on 06.12.16.
-//
+/* Fichier : utils.h
+ * Auteur : Yohann Meyer - Sven Rouvinez / HEIG-VD
+ * Date: 06.12.2016
+ *
+ * But:
+ *
+ *
+ * Modifications : 06.12.2016 / Sven Rouvinez / Updating the commentary
+ *
+ */
 
 #ifndef LABO07_UTILS_H
 #define LABO07_UTILS_H
