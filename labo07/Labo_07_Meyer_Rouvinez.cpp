@@ -31,7 +31,6 @@ Compilateur : gcc version 6.2.1 20160916 (Red Hat 6.2.1-2) (GCC)
 
 
 int main() {
-    srand(time(NULL));
 
 
     int     nbExplo,
@@ -48,17 +47,18 @@ int main() {
             posLake3X,
             posLake3Y,
             radLake3;
+    string  map;
 
-
-    const int NB_EXPLO_MIN = 1,
-            NB_EXPLO_MAX = INT_MAX,
-            MAP_X_MIN = 1,
-            MAP_Y_MIN = 1,
-            MAP_X_MAX = 100,
-            MAP_Y_MAX = 200,
-            LAKE_R_MIN = 0,
-			//limit the area for lake
-            LAKE_R_MAX =  min(MAP_X_MAX,MAP_Y_MAX)/2;
+    const bool  PRINT_MAP = true;
+    const int   NB_EXPLO_MIN = 1,
+                NB_EXPLO_MAX = INT_MAX,
+                MAP_X_MIN = 1,
+                MAP_Y_MIN = 1,
+                MAP_X_MAX = 100,
+                MAP_Y_MAX = 200,
+                LAKE_R_MIN = 0,
+			    //limit the area for lake in function of the size of area
+                LAKE_R_MAX =  min(MAP_X_MAX,MAP_Y_MAX)/2;
 
 
     do {
@@ -69,42 +69,40 @@ int main() {
 
         int foundTreasure = 0,
             avgSteps      = 0;
-
         State finalState=State::WALK,
                                stateX,
                                stateY;
-//generate the position for treasure, lake and explo
+
         for(int explo=0;explo<nbExplo;explo++){
 
+            //generate the position for treasure, lake and explo
             spawn(posExploX, posExploY,
                   posTreasureX,  posTreasureY,
                   posLake1X,  posLake1Y,  radLake1,
                   posLake2X,  posLake2Y,  radLake2,
                   posLake3X,  posLake3Y,  radLake3,
                   LAKE_R_MIN, LAKE_R_MAX,
-                  MAP_X_MIN,  MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX,false);
+                  MAP_X_MIN,  MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX, map);
+
 
             int step;
             //move the explo and check if they're not drown or lost or found the treasure
-            for (step=0; step<MAP_X_MAX*MAP_Y_MAX;++step){
+            for (step=1; step<area(MAP_X_MAX,MAP_Y_MAX);++step){
 
                 move(posExploX,posExploY);
-                
+
                 stateX = checkPos(posExploX,  posTreasureX,  posLake1X,  radLake1,  posLake2X,  radLake2,  posLake3X,  radLake3, MAP_X_MIN, MAP_X_MAX);
                 stateY = checkPos(posExploY,  posTreasureY,  posLake1Y,  radLake1,  posLake2Y,  radLake2,  posLake3Y,  radLake3, MAP_Y_MIN, MAP_Y_MAX);
                 if(defineState(stateX, stateY, finalState))
                     break;
             }
-            
-
+            finalState = step ==area(MAP_X_MAX,MAP_Y_MIN) ? State::SPENT : finalState;
             printState(finalState, explo, step);
-            cout << posExploX << " : "  << posExploY << endl;
             foundTreasure += finalState == State::RICH ? 1 : 0;
             avgSteps += finalState == State::RICH ? step : 0;
 
         }
-        printStats(foundTreasure, nbExplo, avgSteps);
-        cout << posTreasureX << " : " << posTreasureY << endl;
+        printStats(foundTreasure, nbExplo, avgSteps, (PRINT_MAP ? map : ""));
 
     }while(doAgain());
 

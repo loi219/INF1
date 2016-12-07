@@ -2,8 +2,9 @@
  * Auteur : Yohann Meyer - Sven Rouvinez / HEIG-VD
  * Date: 06.12.2016
  *
- * But:
- *
+ * But: Start of a library containing the necessary base functions
+ *      of any program.
+ *      For now, contain input and 'try again' loop.
  *
  * Modifications : 06.12.2016 / Sven Rouvinez / Updating the commentary
  *
@@ -28,8 +29,8 @@ using namespace std;
 
 
 
-/*
- * Goal: asks the user if he wants to restart or exit the program
+/**
+ * @brief: asks the user if he wants to restart or exit the program
  *       checks if the inputs are valid
  *
  * parameters:
@@ -38,11 +39,11 @@ using namespace std;
  * @return:
  *      isValid: boolean containing the answer of the user to the question
  *               "do you want to start again?"
- */
+ **/
 bool doAgain();
 
-/*
- * Goal: asks the user which values he wants to use for the program
+/**
+ * @brief: asks the user which values he wants to use for the program
  *       checks if the inputs are valid
  *       if the inputs are not valid, asks again the user to enter the values
  *
@@ -62,19 +63,19 @@ bool doAgain();
  *
  * @return:
  *      userInput : int contianing the value that the user entered
- */
+ **/
 int input(const string& message, int limitMin, int limitMax, const int WIDTH_INT=WIDTH_INT_BASE, const int WIDTH_TEXT=WIDTH_TEXT_BASE, const string error="Mauvaise saisie. Veuillez reessayez");
 
 
-/*
- * Goal: Show a prompt for the user to definitely quit the program.
+/**
+ * @brief: Show a prompt for the user to definitely quit the program.
  *
  * parameters:
  *      @param message : string containing the exit message
  *
  * @return:
  *      nothing
- */
+ **/
 void toQuit(string message);
 
 

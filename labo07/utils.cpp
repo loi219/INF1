@@ -26,7 +26,7 @@ bool doAgain() {
 			cin.clear();
 		CLEAR_BUFFER;
 		// works even if the user forget the capital letter
-	} while (!(isValid || toupper(answer) == YES || toupper(answer) == NO));
+	} while (!isValid || !(toupper(answer) == YES || toupper(answer) == NO));
 
 	return (toupper(answer) == YES);
 }

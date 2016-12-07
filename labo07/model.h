@@ -13,7 +13,11 @@
 #ifndef LABO07_MODEL_H
 #define LABO07_MODEL_H
 
+#include <string>
 #include "IO.h"
+
+using namespace std;
+
 
 /**
  * @brief generate and place the explorators, lakes and treasure
@@ -27,7 +31,7 @@
  * @param [in,out] radLake1..3 generate the radius for the lakes
  * @param [in] LAKE_R_MIN LAKE_R_MAX maximum and minimum size for the lakes
  * @param [in] minX, minY, maxX, maxY maximum and minimum X and Y
- * @param [in] first check if the spawn was already used;
+ * @param [in] map contain the map generated;
  *
  * @return if the function was terminate with success
  *
@@ -39,7 +43,7 @@ int spawn(int& posExploX, int& posExploY, int& posTreasureX, int& posTreasureY,
 		int& posLake2Y, int& radLake2, int& posLake3X, int& posLake3Y,
 		int& radLake3, const int LAKE_R_MIN, const int LAKE_R_MAX,
 		const int minX, const int minY, const int maxX, const int maxY,
-		bool first);
+		string& map);
 
 /**
  * @brief move the explorators on the map
